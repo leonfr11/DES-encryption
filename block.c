@@ -9,15 +9,19 @@ void initialpermutation(unsigned char* block, unsigned char* ipblock){
 				    59,51,43,35,27,19,11, 3,
 				    61,53,45,37,29,21,13, 5,
 				    63,55,47,39,31,23,15, 7};
-	int i,part,pos,part8;
+	int i,part,pos,part8,newpos;
 	unsigned char op;
-	for(i=0;i<=64;i++){
+	for(i=1;i<=64;i++){
 		part = (ipmatrix[i-1]%8==0) ? (ipmatrix[i-1]/8)-1 : ipmatrix[i-1]/8;
 		pos = ipmatrix[i-1]-((ipmatrix[i-1]/8)*8);
 		pos = (pos==0) ? 8 : pos;
 		op=128;
 		op>>=(pos-1);
 		op&=block[part];
+		op>>=(8-pos);
+		newpos= i-(i/8)*8;
+		newpos = (newpos==0) ? 8 : newpos;
+		op<<=(8-newpos);
 		part8= ((i)%8==0) ? ((i)/8)-1 : (i)/8;
 		ipblock[part8]|=op;
 	}
@@ -32,15 +36,19 @@ void reversepermutation(unsigned char* ipblock, unsigned char* finalblock){
 					 35, 3,43,11,51,19,59,27,
 					 34, 2,42,10,50,18,58,26,
 					 33, 1,41, 9,49,17,57,25};
-	int i,part,pos,part8;
+	int i,part,pos,part8,newpos;
 	unsigned char op;
-	for(i=0;i<=64;i++){
+	for(i=1;i<=64;i++){
 		part = (reversematrix[i-1]%8==0) ? (reversematrix[i-1]/8)-1 : reversematrix[i-1]/8;
 		pos = reversematrix[i-1]-((reversematrix[i-1]/8)*8);
 		pos = (pos==0) ? 8 : pos;
 		op=128;
 		op>>=(pos-1);
 		op&=ipblock[part];
+		op>>=(8-pos);
+		newpos= i-(i/8)*8;
+		newpos = (newpos==0) ? 8 : newpos;
+		op<<=(8-newpos);
 		part8= ((i)%8==0) ? ((i)/8)-1 : (i)/8;
 		finalblock[part8]|=op;
 	}
@@ -55,15 +63,19 @@ void expansion(unsigned char* half, unsigned char* expanded){
 				     20,21,22,23,24,25,
 				     24,25,26,27,28,29,
 				     28,29,30,31,32, 1};
-	int i,part,pos,part6;
+	int i,part,pos,part6,newpos;
 	unsigned char op;
-	for(i=0;i<=48;i++){
+	for(i=1;i<=48;i++){
 		part = (expmatrix[i-1]%8==0) ? (expmatrix[i-1]/8)-1 : expmatrix[i-1]/8;
 		pos = expmatrix[i-1]-((expmatrix[i-1]/8)*8);
 		pos = (pos==0) ? 8 : pos;
 		op=128;
 		op>>=(pos-1);
 		op&=half[part];
+		op>>=(8-pos);
+		newpos= i-(i/8)*8;
+		newpos = (newpos==0) ? 8 : newpos;
+		op<<=(8-newpos);
 		part6= ((i)%8==0) ? ((i)/8)-1 : (i)/8;
 		expanded[part6]|=op;
 	}
@@ -74,15 +86,19 @@ void permutation(unsigned char* sout, unsigned char* newsout){
 				    1,15,23,26, 5,18,31,10,
 				    2, 8,24,14,32,27, 3, 9,
 				   19,13,30, 6,22,11, 4,25};
-	int i,part,pos,part4;
+	int i,part,pos,part4,newpos;
 	unsigned char op;
-	for(i=0;i<=32;i++){
+	for(i=1;i<=32;i++){
 		part = (pmatrix[i-1]%8==0) ? (pmatrix[i-1]/8)-1 : pmatrix[i-1]/8;
 		pos = pmatrix[i-1]-((pmatrix[i-1]/8)*8);
 		pos = (pos==0) ? 8 : pos;
 		op=128;
 		op>>=(pos-1);
 		op&=sout[part];
+		op>>=(8-pos);
+		newpos= i-(i/8)*8;
+		newpos = (newpos==0) ? 8 : newpos;
+		op<<=(8-newpos);
 		part4= ((i)%8==0) ? ((i)/8)-1 : (i)/8;
 		newsout[part4]|=op;
 	}
@@ -162,6 +178,7 @@ void substitution(unsigned char* in, unsigned char* out){
 	op&=in[2];
 	col=in[1]<<5;
 	col>>=4;
+	op>>=7;
 	col|=op;
 	unsigned char s3num=s3[row][col];
 	//s4
@@ -207,6 +224,7 @@ void substitution(unsigned char* in, unsigned char* out){
 	op&=in[5];
 	col=in[4]<<5;
 	col>>=4;
+	op>>=7;
 	col|=op;
 	unsigned char s7num=s7[row][col];
 	//s8	
@@ -233,46 +251,49 @@ void substitution(unsigned char* in, unsigned char* out){
 	out[3]|=s8num;
 }	
 
-void zero(unsigned char* z1, unsigned char* z2, unsigned char* z3, unsigned char* z4, unsigned char* z5, unsigned char* z6, unsigned char* z7, unsigned char* z8, unsigned char* z9, unsigned char* z10){
-	int i,x;
-	x=sizeof(z1);
-	for(i=0;i<x;i++){
-		z1[i]='\0';
+void zero(unsigned char* z1, int s1, unsigned char* z2, int s2, unsigned char* z3, int s3, unsigned char* z4, int s4, unsigned char* z5, int s5, unsigned char* z6, int s6, unsigned char* z7, int s7, unsigned char* z8, int s8, unsigned char* z9, int s9, unsigned char* z10, int s10, unsigned char* z11, int s11){
+	int i;
+	for(i=0;i<s1;i++){
+		z1[i]=0;
 	}
-	x=sizeof(z2);
-	for(i=0;i<x;i++){
-		z2[i]='\0';
+	
+	for(i=0;i<s2;i++){
+		z2[i]=0;
 	}
-	x=sizeof(z3);
-	for(i=0;i<x;i++){
-		z3[i]='\0';
+
+	for(i=0;i<s3;i++){
+		z3[i]=0;
 	}
-	x=sizeof(z4);
-	for(i=0;i<x;i++){
-		z4[i]='\0';
+
+	for(i=0;i<s4;i++){
+		z4[i]=0;
 	}
-	x=sizeof(z5);
-	for(i=0;i<x;i++){
-		z5[i]='\0';
+
+	for(i=0;i<s5;i++){
+		z5[i]=0;
 	}
-	x=sizeof(z6);
-	for(i=0;i<x;i++){
-		z6[i]='\0';
+
+	for(i=0;i<s6;i++){
+		z6[i]=0;
 	}
-	x=sizeof(z7);
-	for(i=0;i<x;i++){
-		z7[i]='\0';
+
+	for(i=0;i<s7;i++){
+		z7[i]=0;
 	}
-	x=sizeof(z8);
-	for(i=0;i<x;i++){
-		z8[i]='\0';
+
+	for(i=0;i<s8;i++){
+		z8[i]=0;
 	}
-	x=sizeof(z9);
-	for(i=0;i<x;i++){
-		z9[i]='\0';
+
+	for(i=0;i<s9;i++){
+		z9[i]=0;
 	}
-	x=sizeof(z10);
-	for(i=0;i<x;i++){
-		z10[i]='\0';
+
+	for(i=0;i<s10;i++){
+		z10[i]=0;
+	}
+	
+	for(i=0;i<s11;i++){
+		z11[i]=0;
 	}
 }

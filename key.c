@@ -9,7 +9,7 @@ void permutatedchoice1(unsigned char* password, unsigned char* key){
 				    7,62,54,46,38,30,22,
 				   14, 6,61,53,45,37,29,
 				   21,13, 5,28,20,12, 4};
-	int i,part,pos,part7;
+	int i,part,pos,part7,newpos;
 	unsigned char op;
 	for(i=1;i<=56;i++){
 		part = (pc1matrix[i-1]%8==0) ? (pc1matrix[i-1]/8)-1 : pc1matrix[i-1]/8;
@@ -18,6 +18,10 @@ void permutatedchoice1(unsigned char* password, unsigned char* key){
 		op=128;
 		op>>=(pos-1);
 		op&=password[part];
+		op>>=(8-pos);
+		newpos= i-(i/8)*8;
+		newpos = (newpos==0) ? 8 : newpos;
+		op<<=(8-newpos);
 		part7= ((i)%8==0) ? ((i)/8)-1 : (i)/8;
 		key[part7]|=op;
 	}
@@ -32,7 +36,7 @@ void permutatedchoice2(unsigned char* key, unsigned char* out){
 				     30,40,51,45,33,48,
 				     44,49,39,56,34,53,
 				     46,42,50,36,29,32};
-	int i,part,pos,part6;
+	int i,part,pos,part6,newpos;
 	unsigned char op;
 	for(i=1;i<=48;i++){
 		part = (pc2matrix[i-1]%8==0) ? (pc2matrix[i-1]/8)-1 : pc2matrix[i-1]/8;
@@ -41,28 +45,50 @@ void permutatedchoice2(unsigned char* key, unsigned char* out){
 		op=128;
 		op>>=(pos-1);
 		op&=key[part];
+		op>>=(8-pos);
+		newpos= i-(i/8)*8;
+		newpos = (newpos==0) ? 8 : newpos;
+		op<<=(8-newpos);
 		part6= ((i)%8==0) ? ((i)/8)-1 : (i)/8;
 		out[part6]|=op;
 	}
 }
 
 void leftshft(unsigned char* key){
-	unsigned char mid = key[3];
-	unsigned char left=128, right=8;
+	unsigned char left0=128, left1=128, left2=128, left3=128, right4=128, right5=128 , right6=128, op, op2;
 	
-	left&=key[0];
-	right&=key[3];
+	left0&=key[0];
+	left0>>=3;
+	left1&=key[1];
+	left1>>=7;
+	left2&=key[2];
+	left2>>=7;
+	left3&=key[3];
+	left3>>=7;
+	right4&=key[4];
+	right4>>=7;
+	right5&=key[5];
+	right5>>=7;
+	right6&=key[6];
+	right6>>=7;
 	key[0]<<=1;
+	key[0]|=left1;
 	key[1]<<=1;
+	key[1]|=left2;
 	key[2]<<=1;
+	key[2]|=left3;
 	key[3]<<=1;
+	op2=16;
+	op2&=key[3];
+	op=238;
+	key[3]&=op;
+	key[3]|=left0;
+	key[3]|=right4;
 	key[4]<<=1;
+	key[4]|=right5;
 	key[5]<<=1;
+	key[5]|=right6;
 	key[6]<<=1;
-	left>>=3;
-	right>>=3;
-	key[3]&=239;
-	key[6]&=254;
-	key[3]|=left;
-	key[6]|=right;
+	op2>>=4;
+	key[6]|=op2;
 }
